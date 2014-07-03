@@ -23,6 +23,7 @@ module.exports = {
 	each: each,
 	exec: exec,
 
+	mustache: mustache,
 	ssi: ssi,
 
 	log: log,
@@ -39,6 +40,7 @@ var util = require('util'),
 	child = require('child_process'),
 	fs = require('fs'),
 	fiber = requireOptional('fibers'),
+	Mustache = requireOptional('mustache'),
 	SSI = requireOptional('ssi');
 
 // infrastructure
@@ -317,6 +319,10 @@ function inspect(value) {
 }
 
 // templates
+
+function mustache(name, values) {
+	return Mustache.render(name, values);
+}
 
 function ssi(name, values) {
 	var parser = new SSI(),
