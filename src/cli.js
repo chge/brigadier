@@ -2,7 +2,7 @@
 
 /**
  * CLI for Brigadier.
-	$ brigadier path/to/project [task]
+	$ brigadier path/to/project [task] [--option[=value]]
  */
 
 var main = require('./main'),
@@ -16,7 +16,7 @@ var DEFAULT = 'default';
  * @private
  */
 function usage() {
-	console.log('\nUsage: brigadier project task [--name[=value]]');
+	console.log('\nUsage: brigadier project [task] [--option[=value]]');
 	main.fail.apply(null, arguments);
 }
 
