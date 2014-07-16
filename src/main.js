@@ -177,7 +177,7 @@ function write(name, content, options) {
  * @return {String[]}
  */
 function files(path, options) {
-	// TODO
+	return fail('files is not implemented yet, sorry');
 }
 
 /**
@@ -228,7 +228,7 @@ function rmdir(name, options) {
 		if (e.code === 'ENOENT') {
 			trace('  no such directory');
 		} else if (e.code === 'ENOTEMPTY') {
-			log('  TODO');
+			log('  directory is not empty');
 		} else {
 			throw e;
 		}
