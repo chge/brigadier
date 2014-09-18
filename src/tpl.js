@@ -3,12 +3,24 @@
  */
 
 module.exports = {
+	markdown: markdown,
 	mustache: mustache
 };
 
 var internal = require('./internal');
 
-var Mustache = internal.optional('mustache');
+var Markdown = internal.optional('markdown').markdown,
+	Mustache = internal.optional('mustache');
+
+/**
+ */
+function markdown(text) {
+	if (!Markdown) {
+		return internal.fail('no markdown, sorry');
+	}
+
+	return Markdown.toHTML(text);
+}
 
 /**
  */

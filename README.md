@@ -83,6 +83,7 @@ Unfortunately, there are no complete list with explanation yet.
 
 `exec`
 
+`markdown`
 `mustache`
 
 `each`
@@ -106,3 +107,4 @@ Dependencies
 ------------
 
 Brigadier uses [fibers](https://www.npmjs.org/package/fibers) for `exec` command.
+Also, [markdown](https://www.npmjs.org/package/markdown) and [mustache](https://www.npmjs.org/package/mustache) are used for the corresponding commands.
