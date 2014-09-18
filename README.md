@@ -42,7 +42,7 @@ task('talk', function(config) {
 Configuration
 -------------
 
-Top-level task takes 'project.config' configuration from command line.
+Top-level task takes `project.config` configuration from command line.
 
 ```sh
 $ brigadier path/to/project task --option=value --flag
@@ -68,6 +68,10 @@ Unfortunately, there are no complete list with explanation yet.
 `task`
 `run`
 `ran`
+`fail`
+
+`log`
+`trace`
 
 `copy`
 `read`
@@ -77,15 +81,11 @@ Unfortunately, there are no complete list with explanation yet.
 `mkdir`
 `rmdir`
 
-`each`
 `exec`
 
 `mustache`
-`ssi`
 
-`log`
-`trace`
-`fail`
+`each`
 `inspect`
 
 Examples

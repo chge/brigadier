@@ -6,10 +6,7 @@
  */
 
 var main = require('./main'),
-	path = require('path'),
-	fiber;
-
-var DEFAULT = 'default';
+	path = require('path');
 
 /**
  * Same as {@link #fail}, but also prints usage string.
@@ -40,18 +37,5 @@ project ||
 	usage('No project');
 
 main.log.verbose = !!main.project.config.verbose;
-project = path.resolve(process.cwd(), project);
-main.global();
-require(project);
-
-if (!task) {
-	main.task[DEFAULT] ?
-		(task = DEFAULT) :
-		usage('No default task');
-}
-main.task[task] ||
-	usage('No such task', task, 'in', Object.keys(main.task).join('|'));
-
-process.chdir(path.dirname(project));
-
+main.parse(project);
 main.build(task);

@@ -1,4 +1,4 @@
-main.global();
+main.globals();
 
 test('globals', function() {
 	var except = {
