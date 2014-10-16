@@ -3,23 +3,66 @@
  */
 
 module.exports = {
+	tpl: tpl,
 	markdown: markdown,
 	mustache: mustache
 };
 
 var internal = require('./internal');
 
-var Markdown = internal.optional('markdown').markdown,
+var util = require('util'),
+	marked = internal.optional('marked'),
 	Mustache = internal.optional('mustache');
 
 /**
  */
-function markdown(text) {
-	if (!Markdown) {
+function tpl() {
+	var all = '';
+	Array.prototype.forEach.call(arguments, function(chunk) {
+		all += util.isArray(chunk) ?
+			chunk.length ?
+				tpl.apply(null, chunk) :
+				'' :
+			typeof chunk === 'undefined' ?
+				'' :
+				chunk === null ?
+					'' :
+					chunk.toString ?
+						chunk.toString() :
+						chunk;
+	});
+
+	return all;
+}
+
+/**
+ */
+function markdown(text, options) {
+	if (!marked) {
 		return internal.fail('no markdown, sorry');
 	}
+	options = options || {};
 
-	return Markdown.toHTML(text);
+	var renderer = new marked.Renderer();
+	[
+		'code',
+		'blockquote',
+		'html',
+		'heading',
+		'hr',
+		'list',
+		'listitem',
+		'paragraph',
+		'table',
+		'tablerow',
+		'tablecell'
+	].forEach(function(name) {
+		options[name] &&
+			(renderer[name] = options[name]);
+	});
+	options.renderer = renderer;
+
+	return marked(text, options);
 }
 
 /**

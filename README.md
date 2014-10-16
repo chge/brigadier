@@ -54,7 +54,7 @@ task('task', function(config) {
 });
 ```
 
-There is default configuration flag — `verbose`. It simply enables 'trace' output.
+There is default configuration flag — `verbose`. It simply enables `trace` output.
 
 ```sh
 $ brigadier path/to/project task --verbose
@@ -83,6 +83,7 @@ Unfortunately, there are no complete list with explanation yet.
 
 `exec`
 
+`tpl`
 `markdown`
 `mustache`
 
@@ -107,4 +108,4 @@ Dependencies
 ------------
 
 Brigadier uses [fibers](https://www.npmjs.org/package/fibers) for `exec` command.
-Also, [markdown](https://www.npmjs.org/package/markdown) and [mustache](https://www.npmjs.org/package/mustache) are used for the corresponding commands.
+Also, [marked](https://www.npmjs.org/package/marked) and [mustache](https://www.npmjs.org/package/mustache) are used for `markdown` and `mustache` commands.

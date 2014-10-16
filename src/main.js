@@ -38,6 +38,7 @@ module.exports = {
 
 	exec: os.exec,
 
+	tpl: tpl.tpl,
 	markdown: tpl.markdown,
 	mustache: tpl.mustache,
 
