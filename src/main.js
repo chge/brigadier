@@ -56,7 +56,7 @@ var path = require('path'),
 function parse(module) {
 	module = path.resolve(process.cwd(), module);
 	globals();
-	process.chdir(path.dirname(project));
+	process.chdir(path.dirname(module));
 	require(module);
 }
 
