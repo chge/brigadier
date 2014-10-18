@@ -77,9 +77,11 @@ Unfortunately, there are no complete list with explanation yet.
 `read`
 `write`
 `files`
+`dirs`
 `exists`
 `mkdir`
 `rmdir`
+`symlink`
 
 `exec`
 
@@ -107,5 +109,4 @@ brigadier.build('task');
 Dependencies
 ------------
 
-Brigadier uses [fibers](https://www.npmjs.org/package/fibers) for `exec` command.
-Also, [marked](https://www.npmjs.org/package/marked) and [mustache](https://www.npmjs.org/package/mustache) are used for `markdown` and `mustache` commands.
+Dependencies are optional and required by specific commands.

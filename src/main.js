@@ -32,9 +32,11 @@ module.exports = {
 	read: fs.read,
 	write: fs.write,
 	files: fs.files,
+	dirs: fs.dirs,
 	exists: fs.exists,
 	mkdir: fs.mkdir,
 	rmdir: fs.rmdir,
+	symlink: fs.symlink,
 
 	exec: os.exec,
 
@@ -69,14 +71,14 @@ function build(tsk) {
 			usage('No default task');
 	}
 
-	var body = function() {
+	var main = function() {
 		run(tsk, project.config);
 		trace('gut!');
 	};
 
 	fibers ?
-		fibers(body).run() :
-		body();
+		fibers(main).run() :
+		main();
 }
 
 /**

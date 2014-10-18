@@ -39,7 +39,7 @@ function tpl() {
  */
 function markdown(text, options) {
 	if (!marked) {
-		return internal.fail('no markdown, sorry');
+		return internal.fail('no marked, sorry');
 	}
 	options = options || {};
 

@@ -1,13 +1,14 @@
 {
 	"name": "brigadier",
 	"title": "Brigadier",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "Simplistic JavaScript automation tool",
 	"main": "src/main.js",
 	"bin" : {
 		"brigadier" : "src/cli.js"
 	},
 	"optionalDependencies": {
+		"readdir": "*",
 		"fibers": "*",
 		"marked": "*",
 		"mustache": "*"

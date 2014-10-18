@@ -7,18 +7,23 @@ module.exports = {
 	read: read,
 	write: write,
 	files: files,
+	dirs: dirs,
 	exists: exists,
 	mkdir: mkdir,
-	rmdir: rmdir
+	rmdir: rmdir,
+	symlink: symlink
 };
 
-var fail = require('./internal').fail,
+var internal = require('./internal'),
+	fail = internal.fail,
 	log = require('./log'),
 	trace = log.trace,
 	strip = require('./util').strip;
 
 var fs = require('fs'),
 	path = require('path');
+
+var readdir = internal.optional('readdir');
 
 /**
  * Copies one or more files.
@@ -61,21 +66,92 @@ function read(name, options) {
  */
 function write(name, content, options) {
 	content = content || '';
-
 	name = path.resolve(name);
-	trace('write', name, content.length);
+	trace('write', name, content.length, options ? inspect(options) : '');
+	options = options || {};
+	options.strip &&
+		(content = strip(content));
 
 	return fs.writeFileSync(name, content, {encoding: 'utf8', flag: 'w'});
 }
 
 /**
  * Returns array of normalized file paths.
- * @param {String} path
- * @param {Object} [options]
+ * @param {String} [root]
+ * @param {String} name
  * @return {String[]}
  */
-function files(path, options) {
-	return fail('files is not implemented yet, sorry');
+function files(root, name) {
+	if (!readdir) {
+		return internal.fail('no readdir, sorry');
+	}
+	if (arguments.length > 1) {
+		root = path.resolve(root);
+	} else {
+		name = root;
+		root = process.cwd();
+	}
+	trace('files', root, name);
+
+	return readdir.readSync(
+		root,
+		[name],
+		readdir.INCLUDE_HIDDEN
+	);
+}
+
+/**
+ * Returns array of normalized directory paths.
+ * @param {String} [root]
+ * @param {String} name
+ * @return {String[]}
+ */
+function dirs(root, name) {
+	if (!readdir) {
+		return internal.fail('no readdir, sorry');
+	}
+	if (!name) {
+		name = root;
+		root = null;
+	}
+	root &&
+		(root = path.resolve(root));
+	var resolved = path.resolve(name);
+	root ?
+		trace('files', root, resolved) :
+		trace('files', resolved);
+
+	var dirs = readdir.readSync(
+		root || process.cwd(),
+		[resolved],
+		readdir.INCLUDE_HIDDEN + readdir.INCLUDE_DIRECTORIES
+	);
+
+	var output = [];
+	dirs.forEach(function(dir) {
+		var stat = fs.statSync(path.resolve(name, dir));
+		stat.isDirectory() &&
+			output.push(dir);
+	});
+
+	return output;
+}
+
+/**
+ * @ignore
+ */
+function readdir(name, options) {
+	var files = fs.readdirSync(path.resolve(name)),
+		output = [];
+
+	files.forEach(function(fname) {
+		var file = fs.statSync(path.resolve(name, fname));
+		if (options.files && file.isFile() ||
+			options.dirs && file.isDirectory()
+		) {
+			output.push(path.join(name, fname));
+		}
+	});
 }
 
 /**
@@ -127,6 +203,30 @@ function rmdir(name, options) {
 			trace('  no such directory');
 		} else if (e.code === 'ENOTEMPTY') {
 			log('  directory is not empty');
+		} else {
+			throw e;
+		}
+	}
+}
+
+/**
+ * Creates symbolic link.
+ * @param {String} src
+ * @param {String} dst
+ * @param {Object} [options]
+ */
+function symlink(src, dst, options) {
+	src = path.resolve(src);
+	dst = path.resolve(dst);
+	trace('symlink', src, dst);
+
+	try {
+		fs.symlinkSync(src, dst);
+	} catch (e) {
+		if (e.code === 'EEXIST') {
+			trace('  already exists');
+		} else if (e.code === 'EPERM') {
+			fail('permission denied for', src);
 		} else {
 			throw e;
 		}
