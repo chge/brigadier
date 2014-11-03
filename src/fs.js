@@ -110,28 +110,28 @@ function dirs(root, name) {
 	if (!readdir) {
 		return internal.fail('no readdir, sorry');
 	}
-	if (!name) {
+	if (arguments.length > 1) {
+		root = path.resolve(root);
+	} else {
 		name = root;
-		root = null;
+		root = process.cwd();
 	}
-	root &&
-		(root = path.resolve(root));
-	var resolved = path.resolve(name);
-	root ?
-		trace('files', root, resolved) :
-		trace('files', resolved);
+	trace('dirs', root, name);
 
 	var dirs = readdir.readSync(
-		root || process.cwd(),
-		[resolved],
+		root,
+		[name],
 		readdir.INCLUDE_HIDDEN + readdir.INCLUDE_DIRECTORIES
 	);
 
 	var output = [];
 	dirs.forEach(function(dir) {
-		var stat = fs.statSync(path.resolve(name, dir));
+		var stat = fs.statSync(path.resolve(root, dir));
 		stat.isDirectory() &&
-			output.push(dir);
+			output.push(
+				// WORKAROUND
+				dir.replace(/\/$/, '')
+			);
 	});
 
 	return output;
@@ -162,8 +162,10 @@ function readdir(name, options) {
  */
 function exists(name, options) {
 	name = path.resolve(name);
-	trace('stat', name);
-	return fs.existsSync(name);
+	var output = fs.existsSync(name);
+	trace('exists', name, output);
+
+	return output;
 }
 
 /**
