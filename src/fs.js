@@ -30,6 +30,7 @@ var readdir = internal.optional('readdir');
  * @param {String} name
  * @param {String} to
  * @param {Object} [options]
+ * @param {Boolean} [options.strip]
  */
 function copy(from, to, options) {
 	from = path.resolve(from);
@@ -38,10 +39,9 @@ function copy(from, to, options) {
 	options = options || {};
 
 	log.indent++;
-	from = read(from);
-	options.strip &&
-		(from = strip(from));
-	write(to, from);
+	options.strip ?
+		write(to, strip(read(from))) :
+		write(to, read(from, {binary: true}), {binary: true});
 	log.indent--;
 }
 
@@ -49,30 +49,57 @@ function copy(from, to, options) {
  * Reads the entire contents of a file.
  * @param {String} name
  * @param {Object} [options]
- * @return {String}
+ * @param {Boolean} [options.binary]
+ * @param {String} [options.encoding]
+ * @return {String/Buffer}
  */
 function read(name, options) {
 	name = path.resolve(name);
-	trace('read', name);
+	trace('write', name, options ? inspect(options) : '');
+	options = options || {};
 
-	return fs.readFileSync(name, 'utf8');
+	var flags = {
+		encoding: options.encoding,
+		flag: 'r'
+	};
+
+	var content = fs.readFileSync(name, flags);
+
+	return options.binary ?
+		new Buffer(content, options.encoding) :
+		content + '';
 }
 
 /**
  * Rewrites the entire contents of a file.
  * @param {String} name
- * @param {String} [content]
+ * @param {String/Buffer} [content]
  * @param {Object} [options]
+ * @param {Boolean} [options.strip]
+ * @param {Boolean} [options.binary]
+ * @param {String} [options.encoding]
+ * @param {Number} [options.mode]
  */
 function write(name, content, options) {
 	content = content || '';
 	name = path.resolve(name);
 	trace('write', name, content.length, options ? inspect(options) : '');
 	options = options || {};
+
+	var flags = {
+		encoding: options.encoding,
+		flag: 'w'
+	};
+	options.hasOwnProperty('mode') &&
+		(flags.mode = options.mode);
+
+	content = options.binary ?
+		new Buffer(content, options.encoding) :
+		content + '';
 	options.strip &&
 		(content = strip(content));
 
-	return fs.writeFileSync(name, content, {encoding: 'utf8', flag: 'w'});
+	fs.writeFileSync(name, content, flags);
 }
 
 /**

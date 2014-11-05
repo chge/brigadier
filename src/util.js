@@ -39,7 +39,7 @@ function each(collection, iterator, scope) {
  * @return {String}
  */
 function trim(input) {
-	return input.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+	return (input ? input + '' : '').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 }
 
 /**
@@ -48,7 +48,7 @@ function trim(input) {
  * @return {String}
  */
 function strip(input) {
-	input = trim(input || '');
+	input = trim(input ? input + '' : '');
 	return input.replace(/(\r|\n|\t)/g, '');
 }
 
