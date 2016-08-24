@@ -1,38 +1,36 @@
 {
-	"name": "brigadier",
-	"title": "Brigadier",
-	"version": "0.2.6",
-	"description": "Simplistic JavaScript automation tool",
-	"main": "src/main.js",
-	"bin" : {
-		"brigadier" : "src/cli.js"
-	},
-	"optionalDependencies": {
-		"readdir": "*",
-		"fibers": "*",
-		"marked": "*",
-		"mustache": "*"
-	},
-	"devDependencies": {
-		"qunit": "*"
-	},
-	"scripts": {
-		"test": "node test/all"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/chge/brigadier.git"
-	},
-	"keywords": [
-		"build",
-		"task",
-		"automation",
-		"simple"
-	],
-	"author": "chge",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/chge/brigadier/issues"
-	},
-	"homepage": "https://github.com/chge/brigadier"
+  "name": "brigadier",
+  "title": "Brigadier",
+  "version": "0.3.0",
+  "description": "Simplistic JavaScript automation tool",
+  "main": "src/main.js",
+  "bin": {
+    "brigadier": "src/cli.js"
+  },
+  "dependencies": {
+    "glob": "*",
+    "rmdir-recursive": "*"
+  },
+  "devDependencies": {
+    "qunit": "*"
+  },
+  "scripts": {
+    "test": "node test/all"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chge/brigadier.git"
+  },
+  "keywords": [
+    "build",
+    "task",
+    "automation",
+    "simple"
+  ],
+  "author": "chge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chge/brigadier/issues"
+  },
+  "homepage": "https://github.com/chge/brigadier"
 }

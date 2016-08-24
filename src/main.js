@@ -3,55 +3,43 @@
  * API reference is in JSDuck syntax.
  */
 
-var internal = require('./internal'),
+var fs = require('./fs'),
 	log = require('./log'),
-	fs = require('./fs'),
 	os = require('./os'),
-	tpl = require('./tpl'),
 	util = require('./util');
 
 var project = {config: {}};
 
 module.exports = {
-	parse: parse,
 	build: build,
-	globals: globals,
-
-	task: task,
-	run: run,
-	ran: ran,
-
-	project: project,
-
-	fail: internal.fail,
-
-	log: log.log,
-	trace: log.trace,
-
+	concat: util.concat,
 	copy: fs.copy,
-	read: fs.read,
-	write: fs.write,
-	files: fs.files,
 	dirs: fs.dirs,
-	exists: fs.exists,
-	mkdir: fs.mkdir,
-	rmdir: fs.rmdir,
-	symlink: fs.symlink,
-
-	exec: os.exec,
-
-	tpl: tpl.tpl,
-	markdown: tpl.markdown,
-	mustache: tpl.mustache,
-
 	each: util.each,
-	inspect: util.inspect
+	exec: os.exec,
+	exists: fs.exists,
+	fail: util.fail,
+	globals: globals,
+	inspect: util.inspect,
+	files: fs.files,
+	log: log.log,
+	map: util.map,
+	mkdir: fs.mkdir,
+	parse: parse,
+	project: project,
+	ran: ran,
+	read: fs.read,
+	rmdir: fs.rmdir,
+	run: run,
+	symlink: fs.symlink,
+	task: task,
+	trace: log.trace,
+	write: fs.write
 };
 
 var DEFAULT = 'default';
 
-var path = require('path'),
-	fibers = internal.optional('fibers');
+var path = require('path');
 
 /**
  */
@@ -64,21 +52,19 @@ function parse(module) {
 
 /**
  */
-function build(tsk) {
-	if (!tsk) {
+function build(name) {
+	if (!name) {
 		task[DEFAULT] ?
-			(tsk = DEFAULT) :
+			(name = DEFAULT) :
 			usage('No default task');
 	}
 
 	var main = function() {
-		run(tsk, project.config);
+		run(name, project.config);
 		trace('gut!');
 	};
 
-	fibers ?
-		fibers(main).run() :
-		main();
+	main();
 }
 
 /**
@@ -120,7 +106,7 @@ function task(name, body, options) {
  */
 function run(name, config) {
 	if (!task[name]) {
-		return internal.fail('No such task', name, 'in', Object.keys(task).join('|'));
+		return fail('No such task', name, 'in', Object.keys(task).join('|'));
 	}
 
 	var result = task[name](config);

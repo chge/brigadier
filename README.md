@@ -6,7 +6,7 @@ Simplistic JavaScript automation tool.
 Syntax
 ------
 
-Project file for Brigadier is a simple [node.js](http://nodejs.org/) module with some instrumentation in global context.
+Project file for Brigadier is a simple [Node.js](https://nodejs.org/) module with some instrumentation in global context.
 
 You could use built-in Brigadier commands or just write any JavaScript code.
 
@@ -63,6 +63,7 @@ $ brigadier path/to/project task --verbose
 Commands
 --------
 
+All built-in commands are synchronous.
 Unfortunately, there are no complete list with explanation yet.
 
 `task`
@@ -85,12 +86,10 @@ Unfortunately, there are no complete list with explanation yet.
 
 `exec`
 
-`tpl`
-`markdown`
-`mustache`
-
+`concat`
 `each`
 `inspect`
+`map`
 
 Examples
 --------
@@ -105,8 +104,3 @@ var brigadier = require('brigadier');
 brigadier.parse('path/to/project');
 brigadier.build('task');
 ```
-
-Dependencies
-------------
-
-Dependencies are optional and required by specific commands.

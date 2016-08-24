@@ -14,16 +14,16 @@ module.exports = {
 	symlink: symlink
 };
 
-var internal = require('./internal'),
-	fail = internal.fail,
+var util = require('./util'),
+	fail = util.fail,
 	log = require('./log'),
-	trace = log.trace,
-	strip = require('./util').strip;
+	strip = util.strip,
+	trace = log.trace;
 
-var fs = require('fs'),
-	path = require('path');
-
-var readdir = internal.optional('readdir');
+var glob = require('glob'),
+	fs = require('fs'),
+	path = require('path'),
+	rmdirr = require('rmdir-recursive').sync;
 
 /**
  * Copies one or more files.
@@ -37,11 +37,15 @@ function copy(from, to, options) {
 	to = path.resolve(to);
 	trace('copy', from, to, options ? inspect(options) : '');
 	options = options || {};
+	options.trace = options.trace === true;
+	var dirname = path.dirname(to);
 
 	log.indent++;
+	fs.existsSync(dirname) ||
+		mkdir(dirname);
 	options.strip ?
-		write(to, strip(read(from))) :
-		write(to, read(from, {binary: true}), {binary: true});
+		write(to, strip(read(from)), options) :
+		write(to, read(from, {binary: true, trace: options.trace}), {binary: true, trace: options.trace});
 	log.indent--;
 }
 
@@ -54,8 +58,14 @@ function copy(from, to, options) {
  * @return {String/Buffer}
  */
 function read(name, options) {
+	if (Array.isArray(name)) {
+		return name.map(function(n) {
+			return read(n, options);
+		});
+	}
 	name = path.resolve(name);
-	trace('write', name, options ? inspect(options) : '');
+	(!options || options.trace !== false) &&
+		trace('read', name, options ? inspect(options) : '');
 	options = options || {};
 
 	var flags = {
@@ -83,13 +93,15 @@ function read(name, options) {
 function write(name, content, options) {
 	content = content || '';
 	name = path.resolve(name);
-	trace('write', name, content.length, options ? inspect(options) : '');
+	(!options || options.trace !== false) &&
+		trace('write', name, content.length, options ? inspect(options) : '');
 	options = options || {};
 
 	var flags = {
-		encoding: options.encoding,
-		flag: 'w'
-	};
+			encoding: options.encoding,
+			flag: 'w'
+		},
+		dirname = path.dirname(name);
 	options.hasOwnProperty('mode') &&
 		(flags.mode = options.mode);
 
@@ -99,86 +111,69 @@ function write(name, content, options) {
 	options.strip &&
 		(content = strip(content));
 
+	log.indent++;
+	fs.existsSync(dirname) ||
+		mkdir(dirname);
 	fs.writeFileSync(name, content, flags);
+	log.indent--;
 }
 
 /**
  * Returns array of normalized file paths.
  * @param {String} [root]
- * @param {String} name
+ * @param {String/String[]} name
  * @return {String[]}
+ * @param {Object} [options]
  */
-function files(root, name) {
-	if (!readdir) {
-		return internal.fail('no readdir, sorry');
-	}
+function files(root, name, options) {
 	if (arguments.length > 1) {
 		root = path.resolve(root);
 	} else {
 		name = root;
 		root = process.cwd();
 	}
-	trace('files', root, name);
+	if (Array.isArray(name)) {
+		return Array.prototype.concat.apply([],
+			name.map(function(n) {
+				return files(n, options);
+			})
+		);
+	}
+	trace('files', root, name, options ? inspect(options) : '');
+	options = options || {};
+	options.nodir = true;
+	options.cwd = options.cwd || root;
 
-	return readdir.readSync(
-		root,
-		[name],
-		readdir.INCLUDE_HIDDEN
-	);
+	return glob.sync(name, options);
 }
 
 /**
  * Returns array of normalized directory paths.
  * @param {String} [root]
- * @param {String} name
+ * @param {String/String[]} name
  * @return {String[]}
+ * @param {Object} [options]
  */
-function dirs(root, name) {
-	if (!readdir) {
-		return internal.fail('no readdir, sorry');
-	}
+function dirs(root, name, options) {
 	if (arguments.length > 1) {
 		root = path.resolve(root);
 	} else {
 		name = root;
 		root = process.cwd();
 	}
-	trace('dirs', root, name);
+	if (Array.isArray(name)) {
+		return Array.prototype.concat.apply([],
+			name.map(function(n) {
+				return files(n, options);
+			})
+		);
+	}
+	trace('dirs', root, name, options ? inspect(options) : '');
+	options = options || {};
+	options.cwd = options.cwd || root;
+	// TODO trailing slash.
 
-	var dirs = readdir.readSync(
-		root,
-		[name],
-		readdir.INCLUDE_HIDDEN + readdir.INCLUDE_DIRECTORIES
-	);
-
-	var output = [];
-	dirs.forEach(function(dir) {
-		var stat = fs.statSync(path.resolve(root, dir));
-		stat.isDirectory() &&
-			output.push(
-				// WORKAROUND
-				dir.replace(/\/$/, '')
-			);
-	});
-
-	return output;
-}
-
-/**
- * @ignore
- */
-function readdir(name, options) {
-	var files = fs.readdirSync(path.resolve(name)),
-		output = [];
-
-	files.forEach(function(fname) {
-		var file = fs.statSync(path.resolve(name, fname));
-		if (options.files && file.isFile() ||
-			options.dirs && file.isDirectory()
-		) {
-			output.push(path.join(name, fname));
-		}
-	});
+	return glob.sync(name, options);
 }
 
 /**
@@ -196,7 +191,7 @@ function exists(name, options) {
 }
 
 /**
- * Creates directory.
+ * Creates directory with parents if missing.
  * @param {String} name
  * @param {Number} [mode]
  * @param {Object} [options]
@@ -205,13 +200,21 @@ function mkdir(name, mode) {
 	name = path.resolve(name);
 	trace('mkdir', name);
 
+	var dirname = path.dirname(name);
+	fs.existsSync(dirname) ||
+		mkdir(dirname, mode);
 	try {
 		fs.mkdirSync(name, mode);
 	} catch (e) {
-		if (e.code === 'EEXIST') {
-			trace('  already exists');
-		} else {
-			throw e;
+		switch (e.code) {
+			case 'EEXIST':
+				trace('  already exists');
+				break;
+			case 'EPERM':
+				fail('permission denied for', name);
+				break;
+			default:
+				throw e;
 		}
 	}
 }
@@ -226,14 +229,14 @@ function rmdir(name, options) {
 	trace('rmdir', name);
 
 	try {
-		fs.rmdirSync(name);
+		rmdirr(name);
 	} catch (e) {
-		if (e.code === 'ENOENT') {
-			trace('  no such directory');
-		} else if (e.code === 'ENOTEMPTY') {
-			log('  directory is not empty');
-		} else {
-			throw e;
+		switch (e.code) {
+			case 'ENOENT':
+				trace('  no such directory');
+				break;
+			default:
+				throw e;
 		}
 	}
 }
@@ -252,12 +255,15 @@ function symlink(src, dst, options) {
 	try {
 		fs.symlinkSync(src, dst);
 	} catch (e) {
-		if (e.code === 'EEXIST') {
-			trace('  already exists');
-		} else if (e.code === 'EPERM') {
-			fail('permission denied for', src);
-		} else {
-			throw e;
+		switch (e.code) {
+			case 'EEXIST':
+				trace('  already exists');
+				break;
+			case 'EPERM':
+				fail('permission denied for', src);
+				break;
+			default:
+				throw e;
 		}
 	}
 }

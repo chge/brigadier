@@ -2,20 +2,10 @@
 
 /**
  * CLI for Brigadier.
-	$ brigadier path/to/project [task] [--option[=value]]
+	$ brigadier path/to/project [task] [--name[=value]]
  */
 
-var main = require('./main'),
-	path = require('path');
-
-/**
- * Same as {@link #fail}, but also prints usage string.
- * @private
- */
-function usage() {
-	console.log('\nUsage: brigadier project [task] [--option[=value]]');
-	main.fail.apply(null, arguments);
-}
+var main = require('./main');
 
 var argv = [];
 process.argv.forEach(function(arg) {
@@ -39,3 +29,11 @@ project ||
 main.log.verbose = !!main.project.config.verbose;
 main.parse(project);
 main.build(task);
+
+/**
+ * @ignore
+ */
+function usage() {
+	console.log('\nUsage: brigadier path/to/project [task] [--name[=value]]\n');
+	main.fail.apply(null, arguments);
+}

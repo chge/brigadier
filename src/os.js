@@ -6,43 +6,54 @@ module.exports = {
 	exec: exec
 };
 
-var internal = require('./internal'),
-	log = require('./log'),
+var log = require('./log'),
+	fail = require('./util').fail,
 	trace = log.trace;
 
 var child = require('child_process'),
-	fibers = internal.optional('fibers');
+	stream = require('stream');
 
 /**
  * Executes shell command and returns its output.
  * @param {String} command
+ * @param {String/String[]} [args]
  * @param {Object} [options]
  * @return {String}
  */
-function exec(command, options) {
-	if (!fibers) {
-		return fail('no fibers - no exec, sorry');
+function exec(command, args, options) {
+	if (args && typeof args === 'object' && !Array.isArray(args)) {
+		return exec(command, [], args);
 	}
+	if (!args && command.indexOf(' ') !== -1) {
+		// TODO support quotes.
+		command = command.split(' ');
+		return exec(command[0], command.slice(1));
+	}
+	if (typeof args === 'string') {
+		args = [args];
+	}
+	args = args ?
+		Array.isArray(args) ?
+			args :
+			[args] :
+		[];
+	options = options || {};
+	trace(command, args.join(' '));
 
-	trace(command);
-	var current = fibers.current,
-		proc;
+	options.stdio = options.stdio ||
+		[null, 'inherit', 'inherit'];
+	options.shell = options.hasOwnProperty('shell') ?
+		options.shell :
+		true;
 
-	proc = child.exec(command, function(err, stdout, stderr) { 
-		if (err) {
-			current.throwInto(err);
-		}
-	/*
-		stdout &&
-			trace(stdout);
-	*/
-		stderr &&
-			log(stderr);
-		current.run();
-	});
+	var result = child.spawnSync(command, args, options);
+	if (result.error) {
+		throw result.error;
+	}
+	result.status === 0 ||
+		fail(command, 'exit code', result.status);
 
-	// TODO trace with indent
-	proc.stdout.pipe(process.stdout);
-
-	return fibers.yield();
+	return result.stdout ?
+		result.stdout.toString() :
+		'';
 }
