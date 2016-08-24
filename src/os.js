@@ -11,8 +11,7 @@ var log = require('./log'),
 	fail = require('./util').fail,
 	trace = log.trace;
 
-var child = require('child_process'),
-	stream = require('stream');
+var child = require('child_process');
 
 /**
  * Executes shell command and returns its output.
@@ -38,8 +37,8 @@ function exec(command, args, options) {
 			args :
 			[args] :
 		[];
+	trace(command, args.join(' '), options ? inspect(options) : '');
 	options = options || {};
-	trace(command, args.join(' '));
 
 	options.stdio = options.stdio ||
 		[null, 'inherit', 'inherit'];
@@ -48,6 +47,7 @@ function exec(command, args, options) {
 		true;
 
 	var result = child.spawnSync(command, args, options);
+	process.title = 'Brigadier';
 	if (result.error) {
 		throw result.error;
 	}
@@ -83,8 +83,8 @@ function background(command, args, options) {
 			args :
 			[args] :
 		[];
+	trace('background', command, args.join(' '), options ? inspect(options) : '');
 	options = options || {};
-	trace('background', command, args.join(' '));
 
 	options.stdio = options.stdio ||
 		[null, 'inherit', 'inherit'];

@@ -5,6 +5,8 @@
 	$ brigadier path/to/project [task] [--name[=value]]
  */
 
+process.title = 'Brigadier';
+
 var main = require('./main');
 
 var argv = [];
