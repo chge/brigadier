@@ -12,7 +12,7 @@ process.argv.forEach(function(arg) {
 	var flag = arg.split('--')[1];
 	if (flag) {
 		flag = flag.split('=');
-		main.project.config[flag[0]] = JSON.parse(flag[1] || 'true');
+		main.project.config[flag[0]] = flag[1] || true;
 	} else {
 		argv.push(arg);
 	}
@@ -21,10 +21,10 @@ process.argv.forEach(function(arg) {
 var project = argv[2],
 	task = argv[3];
 argv[4] &&
-	usage('Invalid argument', argv[4]);
+	usage('invalid argument', argv[4]);
 
 project ||
-	usage('No project');
+	usage('no project');
 
 main.log.verbose = !!main.project.config.verbose;
 main.parse(project);

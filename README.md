@@ -71,6 +71,7 @@ Unfortunately, there are no complete list with explanation yet.
 `ran`
 `fail`
 
+`info`
 `log`
 `trace`
 
@@ -84,6 +85,7 @@ Unfortunately, there are no complete list with explanation yet.
 `rmdir`
 `symlink`
 
+`background`
 `exec`
 
 `concat`
@@ -94,7 +96,7 @@ Unfortunately, there are no complete list with explanation yet.
 Examples
 --------
 
-Check `example/project.js` for inspiration.
+Check [example/project.js](example/project.js) for inspiration.
 
 Using as a module
 -----------------

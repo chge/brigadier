@@ -3,6 +3,7 @@
  */
 
 module.exports = {
+	background: background,
 	exec: exec
 };
 
@@ -56,4 +57,45 @@ function exec(command, args, options) {
 	return result.stdout ?
 		result.stdout.toString() :
 		'';
+}
+
+/**
+ * Spawns background process.
+ * @param {String} command
+ * @param {String/String[]} [args]
+ * @param {Object} [options]
+ * @return {String}
+ */
+function background(command, args, options) {
+	if (args && typeof args === 'object' && !Array.isArray(args)) {
+		return background(command, [], args);
+	}
+	if (!args && command.indexOf(' ') !== -1) {
+		// TODO support quotes.
+		command = command.split(' ');
+		return exec(command[0], command.slice(1));
+	}
+	if (typeof args === 'string') {
+		args = [args];
+	}
+	args = args ?
+		Array.isArray(args) ?
+			args :
+			[args] :
+		[];
+	options = options || {};
+	trace('background', command, args.join(' '));
+
+	options.stdio = options.stdio ||
+		[null, 'inherit', 'inherit'];
+	options.shell = options.hasOwnProperty('shell') ?
+		options.shell :
+		true;
+
+	var proc = child.spawn(command, args, options);
+	process.on('exit', function() {
+		proc.kill();
+	});
+
+	return proc;
 }

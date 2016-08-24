@@ -11,6 +11,7 @@ var fs = require('./fs'),
 var project = {config: {}};
 
 module.exports = {
+	background: os.background,
 	build: build,
 	concat: util.concat,
 	copy: fs.copy,
