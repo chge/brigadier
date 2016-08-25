@@ -27,6 +27,7 @@ module.exports = {
 	map: util.map,
 	mkdir: fs.mkdir,
 	parse: parse,
+	platform: os.platform,
 	project: project,
 	ran: ran,
 	read: fs.read,

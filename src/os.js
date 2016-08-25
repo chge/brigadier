@@ -2,9 +2,13 @@
  * Operating system helpers.
  */
 
+var platform = {};
+platform[process.platform] = true;
+
 module.exports = {
 	background: background,
-	exec: exec
+	exec: exec,
+	platform: platform
 };
 
 var log = require('./log'),
@@ -13,21 +17,19 @@ var log = require('./log'),
 
 var child = require('child_process');
 
+
 /**
  * Executes shell command and returns its output.
  * @param {String} command
  * @param {String/String[]} [args]
  * @param {Object} [options]
+ * @param {Boolean} [options.shell=true]
+ * @param {Boolean} [options.stdio=false] Pipe all stdio to Brigadier.
  * @return {String}
  */
 function exec(command, args, options) {
 	if (args && typeof args === 'object' && !Array.isArray(args)) {
 		return exec(command, [], args);
-	}
-	if (!args && command.indexOf(' ') !== -1) {
-		// TODO support quotes.
-		command = command.split(' ');
-		return exec(command[0], command.slice(1));
 	}
 	if (typeof args === 'string') {
 		args = [args];
@@ -40,19 +42,22 @@ function exec(command, args, options) {
 	trace(command, args.join(' '), options ? inspect(options) : '');
 	options = options || {};
 
-	options.stdio = options.stdio ||
-		[null, 'inherit', 'inherit'];
 	options.shell = options.hasOwnProperty('shell') ?
 		options.shell :
 		true;
+	options.stdio = options.stdio ||
+		options.stdio ?
+			'inherit' :
+			null;
 
 	var result = child.spawnSync(command, args, options);
 	process.title = 'Brigadier';
-	if (result.error) {
+	if (result.error && options.fail !== false) {
 		throw result.error;
 	}
-	result.status === 0 ||
+	if (result.status !== 0 && options.fail !== false) {
 		fail(command, 'exit code', result.status);
+	}
 
 	return result.stdout ?
 		result.stdout.toString() :
@@ -60,20 +65,17 @@ function exec(command, args, options) {
 }
 
 /**
- * Spawns background process.
+ * Executes shell command in background.
  * @param {String} command
  * @param {String/String[]} [args]
  * @param {Object} [options]
+ * @param {Boolean} [options.shell=true]
+ * @param {Boolean} [options.stdio=false] Pipe all stdio to Brigadier.
  * @return {String}
  */
 function background(command, args, options) {
 	if (args && typeof args === 'object' && !Array.isArray(args)) {
 		return background(command, [], args);
-	}
-	if (!args && command.indexOf(' ') !== -1) {
-		// TODO support quotes.
-		command = command.split(' ');
-		return exec(command[0], command.slice(1));
 	}
 	if (typeof args === 'string') {
 		args = [args];
@@ -86,11 +88,13 @@ function background(command, args, options) {
 	trace('background', command, args.join(' '), options ? inspect(options) : '');
 	options = options || {};
 
-	options.stdio = options.stdio ||
-		[null, 'inherit', 'inherit'];
 	options.shell = options.hasOwnProperty('shell') ?
 		options.shell :
 		true;
+	options.stdio = options.stdio ||
+		options.stdio ?
+			'inherit' :
+			null;
 
 	var proc = child.spawn(command, args, options);
 	process.on('exit', function() {
