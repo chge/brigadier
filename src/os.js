@@ -22,6 +22,7 @@ var child = require('child_process');
  * @param {String} command
  * @param {String/String[]} [args]
  * @param {Object} [options]
+ * @param {Boolean} [options.fail=true] Fail when command fails.
  * @param {Boolean} [options.shell=true]
  * @param {Boolean} [options.stdio=false] Pipe all stdio to Brigadier.
  * @return {String}
@@ -68,8 +69,10 @@ function exec(command, args, options) {
  * @param {String} command
  * @param {String/String[]} [args]
  * @param {Object} [options]
+ * @param {Boolean} [options.fail=true] Fail when command fails.
  * @param {Boolean} [options.shell=true]
- * @param {Boolean} [options.stdio=false] Pipe all stdio to Brigadier.
+ * @param {Boolean} [options.stdio=true] Pipe all stdio to Brigadier.
+ * @param {Boolean} [options.watch=false] Close Brigadier when process will close.
  * @return {String}
  */
 function background(command, args, options) {
@@ -87,18 +90,46 @@ function background(command, args, options) {
 	trace('background', command, args.join(' '), options ? inspect(options) : '');
 	options = options || {};
 
-	options.shell = options.hasOwnProperty('shell') ?
+	options.shell = 'shell' in options ?
 		options.shell :
 		true;
-	options.stdio = options.stdio ||
-		options.stdio ?
+	options.stdio = 'stdio' in options ?
+		options.stdio === true ?
 			'inherit' :
-			null;
+			options.stdio :
+		'inherit';
 
-	var proc = child.spawn(command, args, options);
-	process.on('exit', function() {
-		proc.kill();
+	var proc = child.spawn(command, args, options),
+		indent = log.indent;
+
+	proc.on('exit', function(code) {
+		code = code | 0;
+		log.indent = indent;
+
+		process.removeListener('exit', proc.exitHandler);
+
+		code && options.fail !== false &&
+			fail('background', command, 'exit code', code);
+
+		trace('background', command, 'exit code', code);
+		options.watch &&
+			process.exit(code);
 	});
 
+	proc.exitHandler = function() {
+		kill(proc);
+	};
+	process.prependListener('exit', proc.exitHandler);
+
 	return proc;
+}
+
+function kill(proc) {
+	switch (process.platform) {
+		case 'win32':
+			exec('taskkill /pid ' + proc.pid + ' /T /F', {fail: false});
+		default:
+			// TODO kill tree.
+			proc.kill();
+	}
 }

@@ -1,7 +1,7 @@
 {
   "name": "brigadier",
   "title": "Brigadier",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Simplistic JavaScript automation tool",
   "main": "src/main.js",
   "bin": {

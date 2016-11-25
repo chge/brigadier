@@ -63,12 +63,14 @@ function build(name) {
 			usage('No default task');
 	}
 
-	var main = function() {
-		run(name, project.config);
-		trace('gut!');
-	};
+	process.on('exit', function(code) {
+		log.indent = 0;
+		trace('exit', code | 0);
+	});
 
-	main();
+	return (function main() {
+		return run(name, project.config);
+	})();
 }
 
 /**
@@ -114,16 +116,16 @@ function run(name, config) {
 	}
 
 	var result = task[name](config);
-	ran[name] = true;
+	ran[name] = (ran[name] | 0) + 1;
 
 	return result;
 }
 
 /**
- * Return true if task has been runned.
+ * Returns the number of times task has been runned.
  * @param {String} name
- * @return {Boolean}
+ * @return {Number}
  */
 function ran(name) {
-	return !!ran[name];
+	return ran[name] | 0;
 }
