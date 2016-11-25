@@ -9,6 +9,7 @@ process.title = 'Brigadier';
 
 var main = require('../lib/main');
 
+// TODO use minimist.
 var argv = [];
 process.argv.forEach(function(arg) {
 	var flag = arg.split('--')[1];

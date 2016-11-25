@@ -69,6 +69,7 @@ Unfortunately, there are no complete list with explanation yet.
 `run`
 `ran`
 `fail`
+`exit`
 
 `info`
 `log`
