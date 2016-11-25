@@ -1,7 +1,7 @@
 {
   "name": "brigadier",
   "title": "Brigadier",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "Simplistic JavaScript automation tool",
   "main": "src/main.js",
   "bin": {
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "glob": "*",
+    "requireg": "*",
     "rmdir-recursive": "*"
   },
   "devDependencies": {

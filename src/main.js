@@ -6,7 +6,8 @@
 var fs = require('./fs'),
 	log = require('./log'),
 	os = require('./os'),
-	util = require('./util');
+	util = require('./util'),
+	internal = require('./internal');
 
 var project = {config: {}};
 
@@ -22,6 +23,7 @@ module.exports = {
 	fail: util.fail,
 	globals: globals,
 	inspect: util.inspect,
+	install: internal.install,
 	files: fs.files,
 	log: log.log,
 	map: util.map,

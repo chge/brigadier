@@ -17,7 +17,6 @@ var log = require('./log'),
 
 var child = require('child_process');
 
-
 /**
  * Executes shell command and returns its output.
  * @param {String} command
