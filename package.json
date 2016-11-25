@@ -1,7 +1,7 @@
 {
   "name": "brigadier",
   "title": "Brigadier",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Simplistic JavaScript automation tool",
   "main": "lib/main.js",
   "bin": {
@@ -16,7 +16,6 @@
     "qunit": "*"
   },
   "scripts": {
-    "prepublish": "npm test",
     "test": "node test/all"
   },
   "repository": {

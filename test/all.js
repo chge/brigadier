@@ -13,7 +13,10 @@ qunit.run({
 		namespace: 'main'
 	},
 	code: 'lib/main',
-	tests: 'test/global.js'
+	tests: [
+		'test/cli.js',
+		'test/global.js'
+	]
 }, function(error) {
 	error &&
 		console.error(error);

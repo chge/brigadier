@@ -1,5 +1,7 @@
 main.globals();
 
+QUnit.module('api');
+
 test('globals', function() {
 	var except = {
 		platform: 'object',
@@ -8,7 +10,7 @@ test('globals', function() {
 
 	Object.keys(main).forEach(function(name) {
 		except[name] ?
-			assert.ok(typeof global[name] === except[name], name + ' must be an ' + except[name]) :
-			assert.ok(typeof global[name] === 'function', name + ' must be a function');
+			ok(typeof global[name] === except[name], name + ' must be an ' + except[name]) :
+			ok(typeof global[name] === 'function', name + ' must be a function');
 	});
 });

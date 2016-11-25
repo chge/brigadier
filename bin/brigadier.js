@@ -7,7 +7,7 @@
 
 process.title = 'Brigadier';
 
-var main = require('./main');
+var main = require('../lib/main');
 
 var argv = [];
 process.argv.forEach(function(arg) {
