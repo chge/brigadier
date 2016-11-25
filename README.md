@@ -1,25 +1,26 @@
-Brigadier
-=========
+# Brigadier
+
+[![npm](https://img.shields.io/npm/v/brigadier.svg)](https://www.npmjs.com/package/brigadier)
+[![build](https://travis-ci.org/chge/brigadier.svg?branch=master)](https://travis-ci.org/chge/brigadier)
+[![windows](https://ci.appveyor.com/api/projects/status/github/chge/brigadier?branch=master&svg=true)](https://ci.appveyor.com/project/chge/brigadier)
 
 Simplistic JavaScript automation tool.
 
-Syntax
-------
+# Syntax
 
 Project file for Brigadier is a simple [Node.js](https://nodejs.org/) module with some instrumentation in global context.
 
 You could use built-in Brigadier commands or just write any JavaScript code.
 
-Tasks
------
+# Tasks
 
 Project should declare at least one task. Default one is `default`.
 
 ```sh
-$ brigadier path/to/project
+brigadier path/to/project
 ```
 ```js
-task('default', function() {
+task('default', () => {
 	// Let's do something awesome by default!
 });
 ```
@@ -27,28 +28,27 @@ task('default', function() {
 Of course, tasks could run each other, with optional configuration.
 
 ```sh
-$ brigadier path/to/project work
+brigadier path/to/project work
 ```
 ```js
-task('work', function() {
+task('work', () => {
 	run('talk', {blah: 'blah'});
 });
 
-task('talk', function(config) {
+task('talk', (config) => {
 	log(config);
 });
 ```
 
-Configuration
--------------
+# Configuration
 
 Top-level task takes `project.config` configuration from command line.
 
 ```sh
-$ brigadier path/to/project task --option=value --flag
+brigadier path/to/project task --option=value --flag
 ```
 ```js
-task('task', function(config) {
+task('task', (config) => {
 	// project.config.option === config.option === 'value'
 	// project.config.flag === config.flag === true
 });
@@ -57,11 +57,10 @@ task('task', function(config) {
 There is default configuration flag — `verbose`. It simply enables `trace` output.
 
 ```sh
-$ brigadier path/to/project task --verbose
+brigadier path/to/project task --verbose
 ```
 
-Commands
---------
+# Commands
 
 All built-in commands are synchronous.
 Unfortunately, there are no complete list with explanation yet.
@@ -93,13 +92,11 @@ Unfortunately, there are no complete list with explanation yet.
 `inspect`
 `map`
 
-Examples
---------
+# Examples
 
 Check [example/project.js](example/project.js) for inspiration.
 
-Using as a module
------------------
+# API
 
 ```js
 var brigadier = require('brigadier');

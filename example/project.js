@@ -4,7 +4,7 @@
 	$ brigadier project debug
  */
 
-task('default', function(config) {
+task('default', (config) => {
 	run('clean');
 	run('setup');
 	run('compile');
@@ -16,36 +16,36 @@ task('default', function(config) {
 	});
 });
 
-task('debug', function(config) {
+task('debug', () => {
 	run('clean');
 	run('setup');
 	run('compile', {debug: true});
 	run('test', {all: true});
 });
 
-task('clean', function() {
+task('clean', () => {
 	rmdir('tmp');
 });
 
-task('setup', function() {
+task('setup', () => {
 	mkdir('tmp');
 });
 
-task('compile', function(config) {
+task('compile', (config) => {
 	ran('setup') ||
 		run('setup');
 
 	each([
 		'path/to/file1',
 		'path/to/file2'
-	], function(path) {
+	], (path) => {
 		project.config.debug || config.debug ?
 			exec('compiler --debug ' + path + ' tmp') :
 			exec('compiler ' + path + ' tmp');
 	});
 });
 
-task('test', function(config) {
+task('test', (config) => {
 	ran('compile') ||
 		run('compile');
 
@@ -54,9 +54,10 @@ task('test', function(config) {
 		exec('tester tests/special');
 });
 
-task('package', function() {
+task('package', () => {
 	exec('packager tmp package.pkg');
 });
 
-task('deploy', function(config) {
+task('deploy', (config) => {
+	// config.username, config.password
 });

@@ -9,10 +9,10 @@ qunit.setup({
 
 qunit.run({
 	deps: {
-		path: 'src/main',
+		path: 'lib/main',
 		namespace: 'main'
 	},
-	code: 'src/main',
+	code: 'lib/main',
 	tests: 'test/global.js'
 }, function(error) {
 	error &&

@@ -2,6 +2,7 @@ main.globals();
 
 test('globals', function() {
 	var except = {
+		platform: 'object',
 		project: 'object'
 	};
 
